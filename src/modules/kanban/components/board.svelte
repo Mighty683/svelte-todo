@@ -74,13 +74,9 @@
 <div class="container">
 	<h1>Monte Carlo Task Prediction</h1>
 	<div>
-		<AppInfo title="Number of Simulations">
-			{numberOfSimulations}
-		</AppInfo>
-		<AppInfo title="Remaining Tasks">
-			{remainingTasks}
-		</AppInfo>
-		<AppInfo title="Previous Iterations">
+		<AppInput label="# of Simulations" bind:value={numberOfSimulations} />
+		<AppInput label="# of Remaining Tasks" bind:value={remainingTasks} />
+		<AppInfo title="Past flow (eg: # of tasks done per week)">
 			<div class="previous-iterations">
 				{#each previousIterations as iteration, index}
 					<RemovableInput
@@ -94,12 +90,6 @@
 		</AppInfo>
 	</div>
 	<div>
-		<AppInput label="Remaining Tasks" bind:value={remainingTasks} />
-	</div>
-	<div>
-		<AppInput label="Number of Simulations" bind:value={numberOfSimulations} />
-	</div>
-	<div>
 		<AppButton class="element" on:click={clearData}>Clear Data</AppButton>
 	</div>
 	<div class="form-element">
@@ -107,7 +97,7 @@
 		<br />
 	</div>
 	<canvas id="chart"></canvas>
-	Results (number of iterations: cumulative probability):
+	Results (# of iterations: cumulative probability):
 	<div class="results">
 		{#each probabilityArray as entry}
 			<Result class="element" {entry} />
