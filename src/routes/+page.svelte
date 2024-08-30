@@ -1,5 +1,5 @@
 <script>
-  import TodoComponent from '../modules/todo/components/list.svelte';
+	import Board from '../modules/kanban/components/board.svelte';
 </script>
 
-<TodoComponent />
+<Board />

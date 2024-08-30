@@ -17,6 +17,16 @@ export default [
 				...globals.browser,
 				...globals.node
 			}
+		},
+		rules: {
+			'svelte/indent': [
+				'error',
+				{
+					indent: 2,
+					switchCase: 1,
+					alignAttributesVertically: false
+				}
+			]
 		}
 	},
 	{
