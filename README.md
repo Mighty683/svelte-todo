@@ -1,10 +1,9 @@
 # Svelte learning project
 
-## TODO:
+## Description
 
-- [] Styling
-- [] Test passing store by context
-- [] Animations
-- [] Routing
-- [] Declarative routing?
-- [] Testing
+Set of kanban tools to manage tasks and projects written in Svelte for learning purposes.
+
+## Features
+
+- Monte Carlo simulation for work time estimation
