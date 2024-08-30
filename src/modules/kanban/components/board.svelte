@@ -10,7 +10,7 @@
 	let previousIterations: number[] = [10, 9, 4, 12, 13];
 	let remainingTasks: string = '60';
 	let nextIteration: string = '5';
-	let numberOfSimulations = '100';
+	let numberOfSimulations = '1000000';
 
 	$: probabilityTable = monteCarloTaskPrediction(
 		previousIterations,
