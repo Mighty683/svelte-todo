@@ -9,10 +9,20 @@ import type {
 export function monteCarloTaskPrediction(
 	previousIterations: TeamIterationResult[],
 	remainingTasksCount: number,
-	numSimulations = 1_000_000
+	numSimulations = 1_000_000,
+	weighted = false,
+	focusFactor = 1
 ): CumulativeProbabilityArray {
 	const result = createProbabilityTable(
-		runSimulation(numSimulations, previousIterations, remainingTasksCount),
+		runSimulation(
+			numSimulations,
+			previousIterations,
+			remainingTasksCount,
+			focusFactor,
+			weighted
+				? getWeightedSimulationStrategy(previousIterations)
+				: getUnweightedSimulationStrategy(previousIterations)
+		),
 		numSimulations
 	);
 	if (result.length) {
@@ -22,10 +32,33 @@ export function monteCarloTaskPrediction(
 	}
 }
 
+export function getWeightedSimulationStrategy(previousIterations: number[]): () => number {
+	const weights = previousIterations.map((_, index) => index + 1); // Linear weight increase
+	const cumulativeWeights = weights.reduce<number[]>((acc, weight) => {
+		const lastValue = acc.length > 0 ? acc[acc.length - 1] : 0;
+		acc.push(lastValue + weight);
+		return acc;
+	}, []);
+
+	return () => {
+		const randomWeight = Math.random() * cumulativeWeights[cumulativeWeights.length - 1];
+		const selectedIndex = cumulativeWeights.findIndex(
+			(cumulativeWeight) => cumulativeWeight >= randomWeight
+		);
+		return previousIterations[selectedIndex];
+	};
+}
+
+export function getUnweightedSimulationStrategy(previousIterations: number[]): () => number {
+	return () => previousIterations[Math.floor(Math.random() * previousIterations.length)];
+}
+
 export function runSimulation(
 	numSimulations: number,
 	previousIterations: number[],
-	remainingTasksCount: number
+	remainingTasksCount: number,
+	focusFactor: number,
+	selectIterationResultStrategy: () => number
 ): SimulationResult {
 	if (
 		!arePreviousIterationsCorrect(previousIterations) ||
@@ -41,10 +74,7 @@ export function runSimulation(
 		let totalTime = 0;
 
 		while (tasksLeft > 0) {
-			const variabilityFactor = Math.random() * 0.1 + 0.95;
-			const randomIteration =
-				previousIterations[Math.floor(Math.random() * previousIterations.length)] *
-				variabilityFactor;
+			const randomIteration = selectIterationResultStrategy() * focusFactor;
 			tasksLeft -= randomIteration;
 			totalTime += 1;
 		}

@@ -8,17 +8,22 @@
 	import Button from '../../../lib/components/button.svelte';
 	import Chart from 'chart.js/auto';
 	import { onMount } from 'svelte';
+	import AppCheckbox from '$lib/components/checkbox.svelte';
 
 	let previousIterations: number[] = [6, 8, 4, 11, 14];
 	let remainingTasks: string = '60';
 	let nextIteration: string = '5';
 	let numberOfSimulations = '1000';
+	let focusFactor = '1';
 	let chart: Chart;
+	let weighted: boolean = false;
 
 	$: probabilityArray = monteCarloTaskPrediction(
 		previousIterations,
 		Number(remainingTasks || 0),
-		Number(numberOfSimulations || 0)
+		Number(numberOfSimulations || 0),
+		weighted,
+		Number(focusFactor || 0)
 	);
 
 	function addIteration() {
@@ -86,6 +91,8 @@
 <div class="container">
 	<h1>Monte Carlo Task Prediction</h1>
 	<div>
+		<AppCheckbox bind:checked={weighted} label="Linear weight most recent tasks" />
+		<AppInput label="Focus Factor" bind:value={focusFactor} />
 		<AppInput label="# of Simulations" bind:value={numberOfSimulations} />
 		<AppInput label="# of Remaining Tasks" bind:value={remainingTasks} />
 		<AppInfo title="Past flow (eg: # of tasks done per week)">
