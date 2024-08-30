@@ -11,12 +11,15 @@ export function monteCarloTaskPrediction(
 	remainingTasksCount: number,
 	numSimulations = 1_000_000
 ): CumulativeProbabilityArray {
-	return addZeroResultsToBegin(
-		createProbabilityTable(
-			runSimulation(numSimulations, previousIterations, remainingTasksCount),
-			numSimulations
-		)
+	const result = createProbabilityTable(
+		runSimulation(numSimulations, previousIterations, remainingTasksCount),
+		numSimulations
 	);
+	if (result.length) {
+		return addZeroResultsToBegin(result);
+	} else {
+		return [[0, 100, 100]];
+	}
 }
 
 export function runSimulation(
@@ -38,7 +41,7 @@ export function runSimulation(
 		let totalTime = 0;
 
 		while (tasksLeft > 0) {
-			const variabilityFactor = Math.random() * 0.2 + 0.9;
+			const variabilityFactor = Math.random() * 0.1 + 0.95;
 			const randomIteration =
 				previousIterations[Math.floor(Math.random() * previousIterations.length)] *
 				variabilityFactor;

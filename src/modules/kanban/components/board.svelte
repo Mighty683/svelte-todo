@@ -9,10 +9,11 @@
 	import Chart from 'chart.js/auto';
 	import { onMount } from 'svelte';
 
-	let previousIterations: number[] = [10, 9, 4, 12, 13];
+	let previousIterations: number[] = [6, 8, 4, 11, 14];
 	let remainingTasks: string = '60';
 	let nextIteration: string = '5';
-	let numberOfSimulations = '1000000';
+	let numberOfSimulations = '1000';
+	let chart: Chart;
 
 	$: probabilityArray = monteCarloTaskPrediction(
 		previousIterations,
@@ -40,11 +41,20 @@
 		nextIteration = '5';
 		numberOfSimulations = '1000000';
 	}
+
+	function updateChart() {
+		if (!chart) return;
+		chart.data.labels = probabilityArray.map(([x]) => x);
+		chart.data.datasets[0].data = probabilityArray.map(([_, __, y]) => y);
+		chart.data.datasets[1].data = probabilityArray.map(([_, y]) => y);
+		chart.update();
+	}
+
 	onMount(() => {
 		const element = document.getElementById('chart') as HTMLCanvasElement;
 		if (!element) return;
 
-		const chart = new Chart(element, {
+		chart = new Chart(element, {
 			type: 'line',
 			data: {
 				labels: probabilityArray.map(([x]) => x),
@@ -69,6 +79,8 @@
 		});
 		() => chart.destroy();
 	});
+
+	$: probabilityArray, updateChart();
 </script>
 
 <div class="container">
