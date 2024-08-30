@@ -16,6 +16,13 @@ export function runSimulation(
 	previousIterations: number[],
 	remainingTasksCount: number
 ): SimulationResult {
+	if (
+		!arePreviousIterationsCorrect(previousIterations) ||
+		remainingTasksCount <= 0 ||
+		numSimulations <= 0
+	) {
+		return [];
+	}
 	const results = [];
 
 	for (let i = 0; i < numSimulations; i++) {
@@ -67,6 +74,10 @@ function reduceSimulationResultsToProbabilityArray(
 		acc.push([entry, 1]);
 	}
 	return acc;
+}
+
+function arePreviousIterationsCorrect(previousIterations: TeamIterationResult[]): boolean {
+	return !!previousIterations.length && previousIterations.every((iteration) => iteration > 0);
 }
 
 function sortByTime(a: [number, number], b: [number, number]): number {

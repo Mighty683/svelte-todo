@@ -25,6 +25,7 @@
 			flex-grow: 0;
 			flex-shrink: 1;
 			width: 3rem;
+			cursor: pointer;
 		}
 		.remove {
 			padding: 0.25rem 0.5rem;
