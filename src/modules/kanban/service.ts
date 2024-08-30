@@ -1,13 +1,21 @@
-import type { ProbabilityArray, SimulationResult, TeamIterationResult } from './types';
+import type {
+	CumulativeProbabilityArray,
+	ProbabilityArray,
+	ProbabilityEntry,
+	SimulationResult,
+	TeamIterationResult
+} from './types';
 
 export function monteCarloTaskPrediction(
 	previousIterations: TeamIterationResult[],
 	remainingTasksCount: number,
 	numSimulations = 1_000_000
-): ProbabilityArray {
-	return createProbabilityTable(
-		runSimulation(numSimulations, previousIterations, remainingTasksCount),
-		numSimulations
+): CumulativeProbabilityArray {
+	return addZeroResultsToBegin(
+		createProbabilityTable(
+			runSimulation(numSimulations, previousIterations, remainingTasksCount),
+			numSimulations
+		)
 	);
 }
 
@@ -47,21 +55,12 @@ export function runSimulation(
 export function createProbabilityTable(
 	simulationResults: number[],
 	numSimulations: number
-): ProbabilityArray {
-	const probabilityArray: ProbabilityArray = simulationResults.reduce(
-		reduceSimulationResultsToProbabilityArray,
-		[]
-	);
-
-	return (
-		probabilityArray
-			// Sort the probability table by time
-			.sort(sortByTime)
-			// Convert to percentage
-			.map(getMapToPercentage(numSimulations))
-			// Calculate cumulative probability
-			.reduce<ProbabilityArray>(reduceToCumulativeProbabilityArray, [])
-	);
+): CumulativeProbabilityArray {
+	return simulationResults
+		.reduce(reduceSimulationResultsToProbabilityArray, [])
+		.sort(sortByTime)
+		.map(getMapToPercentage(numSimulations))
+		.reduce<CumulativeProbabilityArray>(reduceToCumulativeProbabilityArray, []);
 }
 function reduceSimulationResultsToProbabilityArray(
 	acc: ProbabilityArray,
@@ -73,6 +72,7 @@ function reduceSimulationResultsToProbabilityArray(
 	} else {
 		acc.push([entry, 1]);
 	}
+
 	return acc;
 }
 
@@ -85,20 +85,27 @@ function sortByTime(a: [number, number], b: [number, number]): number {
 }
 
 function reduceToCumulativeProbabilityArray(
-	acc: ProbabilityArray,
-	entry: [number, number],
+	acc: CumulativeProbabilityArray,
+	entry: ProbabilityEntry,
 	index: number
-): ProbabilityArray {
-	entry[1] += acc[index - 1]?.[1] || 0;
-	acc.push(entry);
+): CumulativeProbabilityArray {
+	const cumulative = entry[1] + (acc[index - 1]?.[2] || 0);
+	acc.push([entry[0], entry[1], cumulative]);
 	return acc;
 }
 
 function getMapToPercentage(
 	numSimulations: number
-): (value: [number, number], index: number, array: [number, number][]) => [number, number] {
+): (value: ProbabilityEntry, index: number, array: [number, number][]) => ProbabilityEntry {
 	return (entry) => {
 		entry[1] = (entry[1] / numSimulations) * 100;
 		return entry;
 	};
+}
+
+function addZeroResultsToBegin(results: CumulativeProbabilityArray): CumulativeProbabilityArray {
+	if (results[0][0] !== 0) {
+		results.unshift([results[0][0] - 1, 0, 0]);
+	}
+	return results;
 }

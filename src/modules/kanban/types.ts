@@ -1,5 +1,9 @@
 export type TeamIterationResult = number;
 export type NumberOfIterations = number;
 export type Probability = number;
-export type ProbabilityArray = [NumberOfIterations, Probability][];
+export type ProbabilityEntry = [NumberOfIterations, Probability];
+export type CumulativeProbability = number;
+export type CumulativeProbabilityEntry = [NumberOfIterations, Probability, CumulativeProbability];
+export type ProbabilityArray = ProbabilityEntry[];
+export type CumulativeProbabilityArray = CumulativeProbabilityEntry[];
 export type SimulationResult = NumberOfIterations[];

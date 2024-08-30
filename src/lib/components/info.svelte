@@ -2,7 +2,7 @@
 	export let title = '';
 </script>
 
-<div class="container">
+<div class={`${$$restProps.class} container`}>
 	<div class="label">
 		{title}
 	</div>

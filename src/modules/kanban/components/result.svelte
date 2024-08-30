@@ -1,10 +1,14 @@
 <script lang="ts">
-	export let entry: [number, number];
+	import type { CumulativeProbabilityEntry } from '../types';
+
+	export let entry: CumulativeProbabilityEntry;
 </script>
 
 <div class={`${$$restProps.class} container`}>
-	<span class="label">{entry[0]}</span>
-	<span class="info">{entry[1].toFixed(0)}%</span>
+	<span class="info">
+		<span class="label">{entry[0]}:</span>
+		{entry[2].toFixed(2)}%</span
+	>
 </div>
 
 <style lang="scss">
@@ -16,7 +20,6 @@
 	}
 	.label {
 		text-align: center;
-		min-width: 3rem;
 		margin: 0.25rem;
 		font-size: 1rem;
 	}
