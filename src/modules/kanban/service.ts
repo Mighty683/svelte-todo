@@ -1,7 +1,6 @@
 import type {
 	CumulativeProbabilityArray,
-	ProbabilityArray,
-	ProbabilityEntry,
+	GroupedResultsArray,
 	SimulationResult,
 	TeamIterationResult
 } from './types';
@@ -25,6 +24,7 @@ export function monteCarloTaskPrediction(
 		),
 		numSimulations
 	);
+
 	if (result.length) {
 		return addZeroResultsToBegin(result);
 	} else {
@@ -86,19 +86,19 @@ export function runSimulation(
 }
 
 export function createProbabilityTable(
-	simulationResults: number[],
-	numSimulations: number
+	simulationResults: SimulationResult,
+	numberOfSimulations: number
 ): CumulativeProbabilityArray {
 	return simulationResults
-		.reduce(reduceSimulationResultsToProbabilityArray, [])
+		.reduce(reduceSimulationResultsToGroups, [])
 		.sort(sortByTime)
-		.map(getMapToPercentage(numSimulations))
+		.map(getMapSimulationResultToProbability(numberOfSimulations))
 		.reduce<CumulativeProbabilityArray>(reduceToCumulativeProbabilityArray, []);
 }
-function reduceSimulationResultsToProbabilityArray(
-	acc: ProbabilityArray,
+function reduceSimulationResultsToGroups(
+	acc: GroupedResultsArray,
 	entry: number
-): ProbabilityArray {
+): GroupedResultsArray {
 	const existingProbability = acc.find((accEntry) => accEntry[0] === entry);
 	if (existingProbability) {
 		existingProbability[1] += 1;
@@ -119,7 +119,7 @@ function sortByTime(a: [number, number], b: [number, number]): number {
 
 function reduceToCumulativeProbabilityArray(
 	acc: CumulativeProbabilityArray,
-	entry: ProbabilityEntry,
+	entry: SimulationResult,
 	index: number
 ): CumulativeProbabilityArray {
 	const cumulative = entry[1] + (acc[index - 1]?.[2] || 0);
@@ -127,11 +127,11 @@ function reduceToCumulativeProbabilityArray(
 	return acc;
 }
 
-function getMapToPercentage(
-	numSimulations: number
-): (value: ProbabilityEntry, index: number, array: [number, number][]) => ProbabilityEntry {
+function getMapSimulationResultToProbability(
+	numberOfSimulations: number
+): (value: SimulationResult, index: number) => SimulationResult {
 	return (entry) => {
-		entry[1] = (entry[1] / numSimulations) * 100;
+		entry[1] = (entry[1] / numberOfSimulations) * 100;
 		return entry;
 	};
 }
